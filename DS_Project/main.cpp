@@ -30,6 +30,8 @@ int main(int argc, const char * argv[]) {
 		cout << (intBST.search(number) ? "Found" : "Not found") << endl;
 	}
 
+	intBST.Display();
+
 	/*cout << "Inorder Traversal of BST: \n";
 	intBST.inorder(cout);
 

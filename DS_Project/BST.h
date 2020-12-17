@@ -9,9 +9,8 @@ public:
 	bool empty() const;
 	void insert(const DataType & item);
 	bool search(const DataType & item) const;
+	void Display() const;
 	//void remove(const DataType & item);
-	//void inorder(ostream & out) const;
-	//void graph(ostream & out) const;*/
 
 private:
 	class Node
@@ -33,14 +32,12 @@ private:
 	typedef Node* NodePointer;
 	NodePointer root;
 
-	bool search(const DataType & item, NodePointer & ptr, NodePointer & parent, bool & leftchild) const; //used by insert
-	/*void search2(const DataType & item, bool & found, NodePointer & locptr, NodePointer & parent) const;
-	void inorderAux(ostream & out, NodePointer subtreePtr) const;
-	void graphAux(ostream & out, int indent, NodePointer subtreeRoot) const;*/
+	bool search_to_insert(const DataType & item, NodePointer & ptr, NodePointer & parent, bool & leftchild) const; 
+	void DisplayPreOrder(NodePointer & ptr) const;
+	void DisplayInOrder(NodePointer & ptr) const;
+	void DisplayPostOrder(NodePointer & ptr) const;
 
 };
-
-
 
 template <typename DataType>
 inline BST<DataType>::BST()
@@ -68,7 +65,7 @@ inline void  BST<datatype>::insert(const datatype & item)
 	// Tree contains items
 	{
 
-		bool found = search(item, ptr , parent,leftchild);
+		bool found = search_to_insert(item, ptr , parent,leftchild);
 		if (!found)
 			//Item doesn't exist
 		{
@@ -90,7 +87,6 @@ inline void  BST<datatype>::insert(const datatype & item)
 
 
 }
-
 
 template <typename DataType>
 bool  BST<DataType>::search(const DataType & item) const
@@ -115,8 +111,8 @@ bool  BST<DataType>::search(const DataType & item) const
 	}
 }
 
-template <typename DataType>
-bool  BST<DataType>::search(const DataType & item, NodePointer  & ptr, NodePointer  & parent , bool & leftchild) const
+template <typename DataType>  //used by insert
+bool  BST<DataType>::search_to_insert(const DataType & item, NodePointer  & ptr, NodePointer  & parent , bool & leftchild) const
 {
 	while (1)
 	{
@@ -139,6 +135,63 @@ bool  BST<DataType>::search(const DataType & item, NodePointer  & ptr, NodePoint
 		}
 		else
 			return true;
+	}
+}
+
+template <typename DataType>
+void BST<DataType>::Display() const
+{
+	NodePointer ptr = root;
+
+	cout << endl;
+	cout << "Preorder Traversal of BST:" << endl;
+	DisplayPreOrder(ptr);
+
+	cout << endl;
+	cout << "Inorder Traversal of BST:" << endl;
+	DisplayInOrder(ptr);
+
+	cout << endl;
+	cout << "Postorder Traversal of BST:" << endl;
+	DisplayPostOrder(ptr);
+}
+
+template <typename DataType>
+void BST<DataType>::DisplayPreOrder(NodePointer & ptr) const
+{
+	if (ptr == 0)
+		return;
+	else
+	{
+		cout << ptr->data << " ";
+		DisplayPreOrder(ptr -> left);
+		DisplayPreOrder(ptr -> right);
+	}
+}
+
+template <typename DataType>
+void BST<DataType>::DisplayInOrder(NodePointer & ptr) const
+{
+	if (ptr == 0)
+		return;
+	else
+	{
+		DisplayInOrder(ptr -> left);
+		cout << ptr->data << " ";
+		DisplayInOrder(ptr -> right);
+	}
+}
+
+template <typename DataType>
+void BST<DataType>::DisplayPostOrder(NodePointer & ptr) const
+{
+	if (ptr == 0)
+		return;
+	else
+	{
+		DisplayPostOrder(ptr -> left);
+		DisplayPostOrder(ptr -> right);
+		cout << ptr->data << " ";
 	}
 }
 
@@ -199,54 +252,5 @@ bool  BST<DataType>::search(const DataType & item, NodePointer  & ptr, NodePoint
 //{
 //	graphAux(out, 0, root);
 //}
-//
-//template <typename DataType>
-//void BST<DataType>::search2(const DataType & item, bool & found, NodePointer & locptr, NodePointer & parent) const
-//{
-//	locptr = root;
-//	parent = 0;
-//	found = false;
-//	while (!found && locptr != 0)
-//	{
-//		if (item < locptr->data)       
-//		{
-//			parent = locptr;
-//			locptr = locptr->left;
-//		}
-//		else if (locptr->data < item)  
-//		{
-//			parent = locptr;
-//			locptr = locptr->right;
-//		}
-//		else                           
-//			found = true;
-//	}
-//}
-//
-//template <typename DataType>
-//void BST<DataType>::inorderAux(ostream & out, NodePointer subtreeRoot) const
-//{
-//	if (subtreeRoot != 0)
-//	{
-//		inorderAux(out, subtreeRoot->left);    // L operation
-//		out << subtreeRoot->data << "  ";      // V operation
-//		inorderAux(out, subtreeRoot->right);   // R operation
-//	}
-//}
-//
-//#include <iomanip>
-//
-//template <typename DataType>
-//void BST<DataType>::graphAux(ostream & out, int indent,
-//	NodePointer subtreeRoot) const
-//{
-//	if (subtreeRoot != 0)
-//	{
-//		graphAux(out, indent + 8, subtreeRoot->right);
-//		out << setw(indent) << " " << subtreeRoot->data << endl;
-//		graphAux(out, indent + 8, subtreeRoot->left);
-//	}
-//}
-//
 //
 //

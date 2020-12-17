@@ -10,7 +10,19 @@ int main(int argc, const char * argv[]) {
 	cout << "Constructing empty BST\n";
 	cout << "BST " << (intBST.empty() ? "is" : "is not") << " empty\n";
 
-	cout << "Inorder Traversal of BST: \n";
+
+	int number;
+	cout << "\n\nNow testing the search() operation."
+		"\nTry both items in the BST and some not in it:\n";
+	for (;;)
+	{
+		cout << "Item to find (-999 to stop): ";
+		cin >> number;
+		if (number == -999) break;
+		cout << (intBST.search(number) ? "Found" : "Not found") << endl;
+	}
+
+	/*cout << "Inorder Traversal of BST: \n";
 	intBST.inorder(cout);
 
 	cout << "\nNow insert a bunch of integers into the BST."
@@ -31,16 +43,7 @@ int main(int argc, const char * argv[]) {
 
 	cout << endl;
 
-	cout << "\n\nNow testing the search() operation."
-		"\nTry both items in the BST and some not in it:\n";
-	for (;;)
-	{
-		cout << "Item to find (-999 to stop): ";
-		cin >> number;
-		if (number == -999) break;
-		cout << (intBST.search(number) ? "Found" : "Not found") << endl;
-	}
-
+	
 	cout << "\nNow testing the remove() operation."
 		"\nTry both items in the BST and some not in it:\n";
 	for (;;)
@@ -53,6 +56,7 @@ int main(int argc, const char * argv[]) {
 	}
 	cout << "\nInorder Traversal of BST: \n";
 	intBST.inorder(cout);
-	cout << endl;
+	cout << endl;*/
+
 	return 0;
 }

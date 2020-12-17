@@ -1,37 +1,17 @@
 #include <iostream>
 #pragma once
-/* BST.h contains the declaration of class template BST.
-Basic operations:
-Constructor: Constructs an empty BST
-empty:       Checks if a BST is empty
-search:      Search a BST for an item
-insert:      Inserts a value into a BST
-remove:      Removes a value from a BST
-inorder:     Inorder traversal of a BST -- output the data values
-graph:       Output a grapical representation of a BST
-Private utility helper operations:
-search2:     Used by delete
-inorderAux:  Used by inorder
-graphAux:    Used by graph
-Other operations described in the exercises:
-destructor
-copy constructor
-assignment operator
-preorder, postorder, and level-by-level traversals
-level finder
-Note: Execution terminates if memory isn't available for a new BST node.
----------------------------------------------------------------------------*/
+
 template <typename DataType>
 class BST
 {
 public:
 	BST();
 	bool empty() const;
+	void insert(const DataType & item);
 	bool search(const DataType & item) const;
-	/*void insert(const DataType & item);
-	void remove(const DataType & item);
-	void inorder(ostream & out) const;
-	void graph(ostream & out) const;*/
+	//void remove(const DataType & item);
+	//void inorder(ostream & out) const;
+	//void graph(ostream & out) const;*/
 
 private:
 	class Node
@@ -53,17 +33,12 @@ private:
 	typedef Node* NodePointer;
 	NodePointer root;
 
-	//used by search
-	NodePointer get_root()
-	{
-		return root;
-	}
-	bool search(const DataType & item, NodePointer & ptr) const;
+	bool search(const DataType & item, NodePointer & ptr, NodePointer & parent, bool & leftchild) const; //used by insert
 	/*void search2(const DataType & item, bool & found, NodePointer & locptr, NodePointer & parent) const;
 	void inorderAux(ostream & out, NodePointer subtreePtr) const;
 	void graphAux(ostream & out, int indent, NodePointer subtreeRoot) const;*/
 
-}; 
+};
 
 
 
@@ -78,17 +53,50 @@ inline bool BST<DataType>::empty() const
 	return root == 0;
 }
 
-template <typename DataType>
-bool  BST<DataType>::search(const DataType & item) const 
-{
-	NodePointer ptr = root;
-	return search(item,  ptr);
+template <typename datatype>
+inline void  BST<datatype>::insert(const datatype & item)
+{ 
+	NodePointer ptr = root, parent; 
+	bool leftchild = false;
+
+	if (this->empty())
+	// Tree has no items
+	{
+		root = new BST<datatype>::Node(item);
+	}
+	else
+	// Tree contains items
+	{
+
+		bool found = search(item, ptr , parent,leftchild);
+		if (!found)
+			//Item doesn't exist
+		{
+			ptr = new BST<datatype>::Node(item);
+			if (leftchild)
+			{
+				parent->left = ptr;
+			}
+			else
+			{
+				parent->right = ptr;
+
+			}
+		}
+		else
+			//Item exists
+			cout << "Item already exists; Tree can't have duplicates\n";
+	}
+
+
 }
 
+
 template <typename DataType>
-bool  BST<DataType>::search(const DataType & item ,NodePointer  & ptr) const
+bool  BST<DataType>::search(const DataType & item) const
 {
-	while (true)
+	NodePointer ptr = root;
+	while (1)
 	{
 		if (ptr == 0)
 		{
@@ -96,47 +104,46 @@ bool  BST<DataType>::search(const DataType & item ,NodePointer  & ptr) const
 		}
 		else if (item < ptr-> data)
 		{
-			return search(item, ptr->left);
+			ptr = ptr -> left;
 		}
 		else if (item > ptr->data)
 		{
-			return search(item, ptr->right);
+			ptr = ptr->right;
 		}
-		else 
+		else
 			return true;
 	}
-
 }
 
-//template <typename DataType>
-//inline void  BST<DataType>::insert(const DataType & item)
-//{
-//	NodePointer locptr = root,   parent = 0;      
-//	bool found = false;  
-//	while (!found && locptr != 0)
-//	{
-//		parent = locptr;
-//		if (item < locptr->data)      
-//			locptr = locptr->left;
-//		else if (locptr->data < item) 
-//			locptr = locptr->right;
-//		else                          
-//			found = true;
-//	}
-//	if (!found)
-//	{                                 
-//		locptr = new BST<DataType>::Node(item);
-//		if (parent == 0)               
-//			root = locptr;
-//		else if (item < parent->data)  
-//			parent->left = locptr;
-//		else                           
-//			parent->right = locptr;
-//	}
-//	else
-//		cout << "Item already in the tree\n";
-//}
-//
+template <typename DataType>
+bool  BST<DataType>::search(const DataType & item, NodePointer  & ptr, NodePointer  & parent , bool & leftchild) const
+{
+	while (1)
+	{
+		if (ptr == 0)
+		{
+			return false;
+		}
+		else if (item < ptr->data)
+		{
+			parent = ptr;
+			ptr = ptr->left;
+			leftchild = true;
+		}
+		else if (item > ptr->data)
+		{
+			parent = ptr;
+			ptr = ptr->right;
+			leftchild = false;
+
+		}
+		else
+			return true;
+	}
+}
+
+
+
 //template <typename DataType>
 //void BST<DataType>::remove(const DataType & item)
 //{

@@ -1,5 +1,8 @@
+#ifndef BST_hpp
+#define BST_hpp
+
+#include <stdio.h>
 #include <iostream>
-#pragma once
 
 template <typename DataType>
 class BST
@@ -9,35 +12,45 @@ public:
 	bool empty() const;
 	void insert(const DataType & item);
 	bool search(const DataType & item) const;
-	void Display() const;
+	void Display(ostream & out) const;
+
 	//void remove(const DataType & item);
+	void erase(const DataType & item);
+	void delete_erased();
+
 
 private:
 	class Node
 	{
 	public:
+		bool erased;
 		DataType data;
 		Node * left;
 		Node * right;
 
 		Node()
-			: left(0), right(0)
+			: left(0), right(0), erased(false)
 		{}
 
 		Node(DataType item)
-			: data(item), left(0), right(0)
+			: data(item), left(0), right(0), erased(false)
 		{}
 
 	};
+
 	typedef Node* NodePointer;
 	NodePointer root;
 
-	bool search_to_insert(const DataType & item, NodePointer & ptr, NodePointer & parent, bool & leftchild) const; 
+	bool search_extra(const DataType & item, NodePointer & ptr, NodePointer & parent, bool & leftchild) const;
 	void DisplayPreOrder(NodePointer & ptr) const;
 	void DisplayInOrder(NodePointer & ptr) const;
 	void DisplayPostOrder(NodePointer & ptr) const;
+	void delete_erased(NodePointer & ptr);
 
 };
+template <typename DataType>
+ostream & operator<< (ostream & out, const BST<DataType> & bst);
+#endif
 
 template <typename DataType>
 inline BST<DataType>::BST()
@@ -52,20 +65,20 @@ inline bool BST<DataType>::empty() const
 
 template <typename datatype>
 inline void  BST<datatype>::insert(const datatype & item)
-{ 
-	NodePointer ptr = root, parent; 
+{
+	NodePointer ptr = root, parent;
 	bool leftchild = false;
 
 	if (this->empty())
-	// Tree has no items
+		// Tree has no items
 	{
 		root = new BST<datatype>::Node(item);
 	}
 	else
-	// Tree contains items
+		// Tree contains items
 	{
 
-		bool found = search_to_insert(item, ptr , parent,leftchild);
+		bool found = search_extra(item, ptr, parent, leftchild);
 		if (!found)
 			//Item doesn't exist
 		{
@@ -98,9 +111,9 @@ bool  BST<DataType>::search(const DataType & item) const
 		{
 			return false;
 		}
-		else if (item < ptr-> data)
+		else if (item < ptr->data)
 		{
-			ptr = ptr -> left;
+			ptr = ptr->left;
 		}
 		else if (item > ptr->data)
 		{
@@ -111,8 +124,8 @@ bool  BST<DataType>::search(const DataType & item) const
 	}
 }
 
-template <typename DataType>  //used by insert
-bool  BST<DataType>::search_to_insert(const DataType & item, NodePointer  & ptr, NodePointer  & parent , bool & leftchild) const
+template <typename DataType>  //used by insert and erase
+bool  BST<DataType>::search_extra(const DataType & item, NodePointer  & ptr, NodePointer  & parent, bool & leftchild) const
 {
 	while (1)
 	{
@@ -139,7 +152,7 @@ bool  BST<DataType>::search_to_insert(const DataType & item, NodePointer  & ptr,
 }
 
 template <typename DataType>
-void BST<DataType>::Display() const
+void BST<DataType>::Display(ostream & out) const
 {
 	NodePointer ptr = root;
 
@@ -157,6 +170,12 @@ void BST<DataType>::Display() const
 }
 
 template <typename DataType>
+ostream & operator<< (ostream & out, const BST<DataType> & bst) {
+	bst.Display(out);
+	return out;
+}
+
+template <typename DataType>
 void BST<DataType>::DisplayPreOrder(NodePointer & ptr) const
 {
 	if (ptr == 0)
@@ -164,8 +183,8 @@ void BST<DataType>::DisplayPreOrder(NodePointer & ptr) const
 	else
 	{
 		cout << ptr->data << " ";
-		DisplayPreOrder(ptr -> left);
-		DisplayPreOrder(ptr -> right);
+		DisplayPreOrder(ptr->left);
+		DisplayPreOrder(ptr->right);
 	}
 }
 
@@ -176,9 +195,9 @@ void BST<DataType>::DisplayInOrder(NodePointer & ptr) const
 		return;
 	else
 	{
-		DisplayInOrder(ptr -> left);
+		DisplayInOrder(ptr->left);
 		cout << ptr->data << " ";
-		DisplayInOrder(ptr -> right);
+		DisplayInOrder(ptr->right);
 	}
 }
 
@@ -189,46 +208,81 @@ void BST<DataType>::DisplayPostOrder(NodePointer & ptr) const
 		return;
 	else
 	{
-		DisplayPostOrder(ptr -> left);
-		DisplayPostOrder(ptr -> right);
+		DisplayPostOrder(ptr->left);
+		DisplayPostOrder(ptr->right);
 		cout << ptr->data << " ";
 	}
 }
 
+template <typename DataType>
+void  BST<DataType>::erase(const DataType & item)
+{
+	NodePointer ptr = root, parent;
+	bool leftchild = false;
+	bool found = search_extra(item, ptr, parent, leftchild);
+	if (!found)
+	{
+		cout << "\nItem doesn't exist" << endl;
+	}
+	else
+	{
+		ptr->erased = true;
+	}
+
+}
 
 
-//template <typename DataType>
-//void BST<DataType>::remove(const DataType & item)
+template <typename DataType>
+void  BST<DataType>::delete_erased()
+{
+	NodePointer ptr = root;
+	delete_erased(ptr);
+}
+template <typename DataType>
+void  BST<DataType>::delete_erased(NodePointer & ptr)
+{
+	if (ptr == 0)
+	{
+		return;
+	}
+	else if (ptr->erased == true)
+	{
+		//remove(ptr -> data);
+	}
+	delete_erased(ptr->left);
+	delete_erased(ptr->right);
+}
+
+//template <typename datatype>
+//void BST<datatype>::remove(const datatype & item)
 //{
 //	bool found;                      
-//	BST<DataType>::NodePointer
-//		x,                           
-//		parent;                      
+//	BST<datatype>::Node x, parent;                      
 //	search2(item, found, x, parent);
 //
 //	if (!found)
 //	{
-//		cout << "Item not in the BST\n";
+//		cout << "item not in the bst\n";
 //		return;
 //	}
 //	
 //	if (x->left != 0 && x->right != 0)
 //	{                                
 //									
-//		BST<DataType>::NodePointer xSucc = x->right;
+//		bst<datatype>::nodepointer xsucc = x->right;
 //		parent = x;
-//		while (xSucc->left != 0)      
+//		while (xsucc->left != 0)      
 //		{
-//			parent = xSucc;
-//			xSucc = xSucc->left;
+//			parent = xsucc;
+//			xsucc = xsucc->left;
 //		}
 //
 //		
-//		x->data = xSucc->data;
-//		x = xSucc;
+//		x->data = xsucc->data;
+//		x = xsucc;
 //	} 
 //
-//	BST<DataType>::NodePointer
+//	bst<datatype>::nodepointer
 //		subtree = x->left;           
 //	if (subtree == 0)
 //		subtree = x->right;
@@ -240,17 +294,4 @@ void BST<DataType>::DisplayPostOrder(NodePointer & ptr) const
 //		parent->right = subtree;
 //	delete x;
 //}
-//
-//template <typename DataType>
-//inline void BST<DataType>::inorder(ostream & out) const
-//{
-//	inorderAux(out, root);
-//}
-//
-//template <typename DataType>
-//inline void BST<DataType>::graph(ostream & out) const
-//{
-//	graphAux(out, 0, root);
-//}
-//
 //

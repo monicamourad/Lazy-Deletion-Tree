@@ -38,7 +38,7 @@ int main(int argc, const char * argv[]) {
 	cout << "Item to remove (-999 to stop): ";
 	cin >> number;
 	if (number == -999) break;
-	intBST.RemoveNode(number);
+	intBST.remove(number);
 	}
 	cout << intBST << endl;
 
@@ -54,10 +54,7 @@ int main(int argc, const char * argv[]) {
 	cout << intBST << endl;
 
 	cout << "\n\nNow testing the delete_erased() operation." << endl;
-	for (;;)
-	{
-		intBST.delete_erased();
-	}
+	intBST.delete_erased();
 	cout << intBST << endl;
 
 

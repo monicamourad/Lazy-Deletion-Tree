@@ -1,3 +1,4 @@
+
 #ifndef BST_hpp
 #define BST_hpp
 
@@ -13,11 +14,9 @@ public:
 	void insert(const DataType & item);
 	bool search(const DataType & item) const;
 	void Display(ostream & out) const;
-	void RemoveNode(const DataType & key);
 	void erase(const DataType & item);
 	void delete_erased();
-	int  FindSmallest();
-
+	void remove(const DataType & item);
 
 
 private:
@@ -47,10 +46,8 @@ private:
 	void DisplayInOrder(NodePointer & ptr) const;
 	void DisplayPostOrder(NodePointer & ptr) const;
 	void delete_erased(NodePointer & ptr);
-	void RemoveNodePrivate(const DataType & key, NodePointer & parent);
-	void RemoveRootMatch();
-	void RemoveMatch(NodePointer & parent, NodePointer & match, bool left);
-	int  FindSmallestPrivate(NodePointer & ptr);
+	void search_extra_2(const DataType & item, NodePointer & location, NodePointer & parent, bool & exists) const;
+
 };
 template <typename DataType>
 ostream & operator<< (ostream & out, const BST<DataType> & bst);
@@ -226,7 +223,7 @@ void  BST<DataType>::erase(const DataType & item)
 	bool found = search_extra(item, ptr, parent, leftchild);
 	if (!found)
 	{
-		cout << "\nItem doesn't exist" << endl;
+		cout << "Item doesn't exist" << endl;
 	}
 	else
 	{
@@ -234,7 +231,6 @@ void  BST<DataType>::erase(const DataType & item)
 	}
 
 }
-
 
 template <typename DataType>
 void  BST<DataType>::delete_erased()
@@ -252,130 +248,67 @@ void  BST<DataType>::delete_erased(NodePointer & ptr)
 	}
 	else if (ptr->erased == true)
 	{
-		RemoveNode(ptr -> data);
-	}
-	delete_erased(ptr->left);
-	delete_erased(ptr->right);
-}
-
-template <typename DataType>
-void BST<DataType>::RemoveNode(const DataType & key) {
-	RemoveNodePrivate(key, root);
-}
-
-template <typename DataType>
-void BST<DataType>::RemoveNodePrivate(const DataType & key, NodePointer & parent) {
-	if (root != NULL) {
-		if (root->data == key) {
-			RemoveRootMatch();
-		}
-		else {
-			if (key < parent->data && parent->left != NULL) {
-				parent->left->data == key ? RemoveMatch(parent, parent->left, true) : RemoveNodePrivate(key, parent->left);
-			}
-			else if (key > parent->data && parent->right != NULL) {
-				parent->right->data == key ? RemoveMatch(parent, parent->right, false) : RemoveNodePrivate(key, parent->right);
-			}
-			else {
-				cout << "The key is not in the tree" << endl;
-			}
-		}
+		remove(ptr -> data);
+		return;
 	}
 	else {
-		cout << "The tree is empty" << endl;
+		delete_erased(ptr->left);
+		delete_erased(ptr->right);
 	}
 }
 
 template <typename DataType>
-void BST<DataType>::RemoveRootMatch() {
-	if (root != NULL) {
-		NodePointer delPtr = root;
-		DataType rootKey = root->data;
-		DataType smallestInRightSubTree;
-
-		// Case 0 - 0 childs
-		if (root->left == NULL && root->right == NULL) {
-			root = NULL;
-			delete delPtr;
+void BST<DataType>::remove(const DataType & item)
+{
+	bool exists;
+	NodePointer x, parent;
+	search_extra_2(item, x, parent, exists);
+	if (exists == false) {
+		cout << "Item is not in the BST" << endl;
+		return;
+	}
+	if (x->left != 0 && x->right != 0) {
+		NodePointer y = x->right;
+		for (parent = x; y->left != 0; )
+		{
+			parent = y;
+			y = y->left;
 		}
-		// Case 1 - 1 child
-		else if (root->left == NULL && root->right != NULL) {
-			root = root->right;
-			delPtr->right = NULL;
-			delete delPtr;
-		}
-		else if (root->left != NULL && root->right == NULL) {
-			root = root->left;
-			delPtr->left = NULL;
-			delete delPtr;
-		}
-		// Case 2 - 2 childs
-		else {
-			smallestInRightSubTree = FindSmallestPrivate(root->right);
-			RemoveNodePrivate(smallestInRightSubTree, root);
-			root->data = smallestInRightSubTree;
-		}
+		x->data = y->data;
+		x = y;
+	}
+	NodePointer z = x->left;
+	if (z == NULL) {
+		z = x->right;
+	}
+	if (parent == NULL) {
+		root = z;
+	}
+	else if (parent->left == x) {
+		parent->left = z;
 	}
 	else {
-		cout << "Tree is empty" << endl;
+		parent->right = z;
 	}
+	delete x;
 }
 
 template <typename DataType>
-void BST<DataType>::RemoveMatch(NodePointer & parent, NodePointer & match, bool left) {
-	if (root != NULL) {
-		NodePointer delPtr;
-		DataType matchKey = match->data;
-		DataType smallestInRightSubTree;
-
-		//Case 0
-		if (match->left == NULL && match->right != NULL) {
-			delPtr = match;
-			left == true ? parent->left = NULL : parent->right = NULL;
-			delete delPtr;
+void BST<DataType>::search_extra_2(const DataType & item, NodePointer & location, NodePointer & parent, bool & exists) const
+{
+	for (parent = NULL, location = root, exists = false; location != NULL; )
+	{
+		if (item < location->data) {
+			parent = location;
+			location = location->left;
 		}
-		//Case 1
-		else if (match->left == NULL && match->right != NULL) {
-			left == true ? parent->left = match->right : parent->right = match->right;
-			match->right = NULL;
-			delPtr = match;
-			delete delPtr;
-		}
-		else if (match->left != NULL && match->right == NULL) {
-			left == true ? parent->left = match->left : parent->right = match->left;
-			match->left = NULL;
-			delPtr = match;
-			delete delPtr;
-		}
-		//Case 2
-		else {
-			smallestInRightSubTree = FindSmallestPrivate(match->right);
-			RemoveNodePrivate(smallestInRightSubTree, match);
-			match->data = smallestInRightSubTree;
-		}
-	}
-	else {
-		cout << "Tree is empty" << endl;
-	}
-}
-
-template <typename DataType>
-int BST<DataType>::FindSmallest() {
-	return FindSmallestPrivate(root);
-}
-
-template <typename DataType>
-int BST<DataType>::FindSmallestPrivate(NodePointer & ptr) {
-	if (root == NULL) {
-		cout << "Tree is empty" << endl;
-		return -1;
-	}
-	else {
-		if (ptr->left != NULL) {
-			return FindSmallestPrivate(ptr->left);
+		else if (location->data < item) {
+			parent = location;
+			location = location->right;
 		}
 		else {
-			return ptr->data;
+			exists = true;
+			break;
 		}
 	}
 }
